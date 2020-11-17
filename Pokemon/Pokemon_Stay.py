@@ -43,10 +43,10 @@ from pprint import pprint
 #     
 # Create the components for a player object by defining each of these variables. The dictionary and list variables should just be defined as empty; you can use any (correctly typed) values for the others.
 
-# In[88]:
+# In[2]:
 
 
-from typing import TypedDict, List, Dict, Any
+from typing import TypedDict, List, Dict, Tuple, Any, Optional
 
 
 # In[3]:
@@ -56,7 +56,7 @@ class Player(TypedDict):
     player_id: int
     player_name: str
     time_played: float
-    player_pokemon: Dict
+    player_pokemon: Dict[Optional[int], Optional[List[int]]]
     gyms_visited: List[str]
 
 
@@ -118,16 +118,18 @@ player_1
 # In[7]:
 
 
-pokemon_gyms = ['reddit.com', 
-                'amazon.com', 
-                'twitter.com', 
-                'linkedin.com', 
-                'ebay.com', 
-                'netflix.com', 
-                'sporcle.com', 
-                'stackoverflow.com', 
-                'github.com', 
-                'quora.com']
+pokemon_gyms: List[str] = [
+    'reddit.com', 
+    'amazon.com', 
+    'twitter.com', 
+    'linkedin.com', 
+    'ebay.com', 
+    'netflix.com', 
+    'sporcle.com', 
+    'stackoverflow.com', 
+    'github.com', 
+    'quora.com'
+]
 
 
 # In[8]:
@@ -251,28 +253,29 @@ pprint(pokedex)
 # 
 # Construct the `players` dictionary and insert the player that you defined in question 1, then print `players`.
 
-# In[89]:
+# In[13]:
 
 
 class PlayerList(TypedDict):
     player_name: str
     time_played: float
-    player_pokemon: Dict
+    player_pokemon: Dict[Optional[int], Optional[List[int]]]
     gyms_visited: List[str]
 
 
-# In[90]:
+# In[14]:
 
 
 players: Dict[int, PlayerList] = {}
 
 
-# In[91]:
+# In[15]:
 
 
-# issue: type checking doesn't work with generi
+# issue: type checking doesn't work with dynamic created code (dictionary comprehension), that's
+# why players_dict: Dict[int, PlayerList] was changed to players_dict[int, Any] for a workaround
 
-def add_player(players_dict: Dict[int, Any], *player: Player):
+def add_player(players_dict: Dict[int, Any], *player: Player) -> None:
     """
     Adds one or several player(s) to a player dictionary indexed by the 'player_id'
     
@@ -283,13 +286,40 @@ def add_player(players_dict: Dict[int, Any], *player: Player):
     players_dict.update({p['player_id']: {k: v for k, v in p.items() if k != 'player_id'} for p in player})
 
 
-# In[92]:
+# In[16]:
+
+
+# optional way when fulfulling strict TpyedDict requirements
+
+# def add_player(players_dict: Dict[int, PlayerList], *player: Player) -> Dict[int, PlayerList]:
+#     """
+#     Adds one or several player(s) to a player dictionary indexed by the 'player_id'
+    
+#     Parameters:
+#     players_dict (dict): player dictionary container where to add player object(s)
+#     player (dict): one or multiple player dictionaries which should be added to 'players_dict' container
+#     """
+#     return {
+#         **players_dict,
+#         **{
+#             p["player_id"]: PlayerList(
+#                 player_name=p["player_name"],
+#                 time_played=p["time_played"],
+#                 player_pokemon=p["player_pokemon"],
+#                 gyms_visited=p["gyms_visited"],
+#             ) 
+#             for p in player
+#         },
+#     }
+
+
+# In[17]:
 
 
 add_player(players, player_1)
 
 
-# In[93]:
+# In[18]:
 
 
 pprint(players)  # containing every player, indexed by their player_id
@@ -307,11 +337,11 @@ pprint(players)  # containing every player, indexed by their player_id
 # 
 # Print the `players` dictionary with the new player inserted.
 
-# In[ ]:
+# In[19]:
 
 
-player_2 = {
-    'player_id': 2,
+player_2: Player = {
+    'player_id': 2,  # uuid.uuid1().int
     'player_name': 'Misty',
     'time_played': 84.0,
     'player_pokemon': {},
@@ -319,7 +349,7 @@ player_2 = {
 }
 
 
-# In[ ]:
+# In[20]:
 
 
 location_stackoverflow = pokemon_gyms[pokemon_gyms.index('stackoverflow.com')]  
@@ -328,19 +358,19 @@ location_github = pokemon_gyms[pokemon_gyms.index('github.com')]
 player_2['gyms_visited'].extend([location_stackoverflow, location_github])
 
 
-# In[ ]:
+# In[21]:
 
 
 player_2
 
 
-# In[ ]:
+# In[22]:
 
 
-add_player_to_players(players, player_2)
+add_player(players, player_2)
 
 
-# In[ ]:
+# In[23]:
 
 
 pprint(players)
@@ -361,11 +391,12 @@ pprint(players)
 # Print the players dictionary after adding the pokemon for each player.
 # 
 
-# In[ ]:
+# In[24]:
 
 
-def find_pokemon(pokemons_dict, pokemon_name):
-    """Finds a pokemon by its name in the pokemon_dict container and 
+def find_pokemon(pokemons_dict: Dict[int, Pokemon], pokemon_name: str) -> Tuple[Optional[int], Optional[Pokemon]]:
+    """
+    Finds a pokemon by its name in the pokemon_dict container and 
     returns a tuple with its index and its dictionary
     
     Parameters:
@@ -380,13 +411,15 @@ def find_pokemon(pokemons_dict, pokemon_name):
     for pokemon_index in pokemons_dict:
         if pokedex[pokemon_index]['name'] == pokemon_name:
             return pokemon_index, pokemons_dict[pokemon_index]
+    return None, None
 
 
-# In[ ]:
+# In[25]:
 
 
-def get_pokemon_stats(pokemon_dict):
-    """Returns a list of all integer pokemon stats
+def get_pokemon_stats(pokemon: Pokemon) -> List[int]:
+    """
+    Returns a list of all integer pokemon stats
     
     Parameters: 
     pokemon_dict (dict): pokemon dictionary
@@ -395,20 +428,20 @@ def get_pokemon_stats(pokemon_dict):
     pokemon_dict[prop] (list): a list with all integer stats values of 
                                that pokemon ([hp, attack, defense, special_attack, special_defense, speed])
     """
-    return [pokemon_dict[prop] for prop in pokemon_dict 
-            if prop == 'hp' 
-            or prop == 'attack'
-            or prop == 'defense'
-            or prop == 'special_attack'
-            or prop == 'special_defense'
-            or prop == 'speed']
+    return [pokemon['hp'], 
+            pokemon['attack'], 
+            pokemon['defense'],
+            pokemon['special_attack'],
+            pokemon['special_defense'], 
+            pokemon['speed']]
 
 
-# In[ ]:
+# In[26]:
 
 
-def add_pokemon_to_player(player, pokemons_dict, pokemon_name):
-    """Adds a pokemon with its stats from a pokemon container to a player
+def add_pokemon_to_player(player: Player, pokemons_dict: Dict[int, Pokemon], pokemon_name: str) -> None:
+    """
+    Adds a pokemon with its stats from a pokemon container to a player
     
     Parameters:
     player (dict): player dictionary
@@ -419,17 +452,18 @@ def add_pokemon_to_player(player, pokemons_dict, pokemon_name):
     pokemon_name (string): pokemon name which is located inside the 'pokemons_dict'
     """
     pokemon_tuple = find_pokemon(pokemons_dict, pokemon_name)
+    assert pokemon_tuple[0] is not None and pokemon_tuple[1] is not None, "Pokemon not found!"
     player['player_pokemon'][pokemon_tuple[0]] = get_pokemon_stats(pokemon_tuple[1])
 
 
-# In[ ]:
+# In[27]:
 
 
 add_pokemon_to_player(player_1, pokedex, 'squirtle')
 player_1
 
 
-# In[ ]:
+# In[28]:
 
 
 add_pokemon_to_player(player_2, pokedex, 'charmander')
@@ -437,7 +471,7 @@ add_pokemon_to_player(player_2, pokedex, 'bulbasaur')
 pprint(player_2)
 
 
-# In[ ]:
+# In[29]:
 
 
 pprint(players)
