@@ -43,10 +43,10 @@ from pprint import pprint
 #     
 # Create the components for a player object by defining each of these variables. The dictionary and list variables should just be defined as empty; you can use any (correctly typed) values for the others.
 
-# In[2]:
+# In[88]:
 
 
-from typing import TypedDict, List, Dict
+from typing import TypedDict, List, Dict, Any
 
 
 # In[3]:
@@ -231,7 +231,7 @@ pokedex: Dict[int, Pokemon] = {
 }
 
 
-# In[ ]:
+# In[12]:
 
 
 pprint(pokedex)
@@ -251,32 +251,45 @@ pprint(pokedex)
 # 
 # Construct the `players` dictionary and insert the player that you defined in question 1, then print `players`.
 
-# In[ ]:
+# In[89]:
 
 
-players = {}
+class PlayerList(TypedDict):
+    player_name: str
+    time_played: float
+    player_pokemon: Dict
+    gyms_visited: List[str]
 
 
-# In[ ]:
+# In[90]:
 
 
-def add_player_to_players(players_dict, *player):
-    """Adds one or several player(s) to a player dictionary indexed by the 'player_id'
+players: Dict[int, PlayerList] = {}
+
+
+# In[91]:
+
+
+# issue: type checking doesn't work with generi
+
+def add_player(players_dict: Dict[int, Any], *player: Player):
+    """
+    Adds one or several player(s) to a player dictionary indexed by the 'player_id'
     
     Parameters:
     players_dict (dict): player dictionary container where to add player object(s)
     player (dict): one or multiple player dictionaries which should be added to 'players_dict' container
     """
-    players.update({k['player_id']: {prop: k[prop] for prop in k if prop != 'player_id'} for k in list(player)})
+    players_dict.update({p['player_id']: {k: v for k, v in p.items() if k != 'player_id'} for p in player})
 
 
-# In[ ]:
+# In[92]:
 
 
-add_player_to_players(players, player_1)
+add_player(players, player_1)
 
 
-# In[ ]:
+# In[93]:
 
 
 pprint(players)  # containing every player, indexed by their player_id
@@ -424,7 +437,7 @@ add_pokemon_to_player(player_2, pokedex, 'bulbasaur')
 pprint(player_2)
 
 
-# In[62]:
+# In[ ]:
 
 
 pprint(players)
@@ -888,7 +901,7 @@ print(round(overpowered_criteria, 2))
 # 
 # Hint: there are many ways you could do this. What do _you_ think makes sense? Start with simplifying assumptions: for example, you could assume that the probabilities of encountering any two Pokemon on one visit to a gym are independent of each other.
 
-# In[63]:
+# In[ ]:
 
 
 import matplotlib.pyplot as plt
