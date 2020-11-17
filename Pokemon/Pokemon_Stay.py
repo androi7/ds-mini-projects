@@ -21,7 +21,7 @@
 # 
 # The pprint package below is the only package imported here, and it's not even strictly required to do any of the project. Printing python variables and objects with pprint can help to format them in a "prettier" way.
 
-# In[9]:
+# In[1]:
 
 
 from pprint import pprint
@@ -43,22 +43,24 @@ from pprint import pprint
 #     
 # Create the components for a player object by defining each of these variables. The dictionary and list variables should just be defined as empty; you can use any (correctly typed) values for the others.
 
+# In[2]:
 
 
-# In[11]:
+from typing import TypedDict, List, Dict
 
 
-from typing import TypedDict
+# In[3]:
+
 
 class Player(TypedDict):
     player_id: int
     player_name: str
     time_played: float
-    player_pokemon: dict
-    gyms_visited: list
+    player_pokemon: Dict
+    gyms_visited: List[str]
 
 
-# In[12]:
+# In[4]:
 
 
 import uuid
@@ -66,7 +68,7 @@ import uuid
 id_1 = uuid.uuid1().int
 
 
-# In[13]:
+# In[5]:
 
 
 player_1: Player = {
@@ -78,11 +80,17 @@ player_1: Player = {
 }
 
 
-# In[14]:
+# In[6]:
 
 
 player_1
 
+
+# Convert jupyter notebook to python script:<br>
+# `jupyter nbconvert --to script Pokemon_Stay.ipynb`
+# 
+# Type checking:<br>
+# `mypy Pokemon_Stay.py`
 
 # <img src="http://imgur.com/l5NasQj.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
 # 
@@ -107,19 +115,28 @@ player_1
 # 2. Append two of these locations to your player's list of visited gyms.
 # 3. Print the list.
 
-# In[218]:
+# In[7]:
 
 
-pokemon_gyms = ['reddit.com', 'amazon.com', 'twitter.com', 'linkedin.com', 'ebay.com', 'netflix.com', 'sporcle.com', 'stackoverflow.com', 'github.com', 'quora.com']
+pokemon_gyms = ['reddit.com', 
+                'amazon.com', 
+                'twitter.com', 
+                'linkedin.com', 
+                'ebay.com', 
+                'netflix.com', 
+                'sporcle.com', 
+                'stackoverflow.com', 
+                'github.com', 
+                'quora.com']
 
 
-# In[219]:
+# In[8]:
 
 
 player_1['gyms_visited'].extend([pokemon_gyms[1], pokemon_gyms[5]])
 
 
-# In[220]:
+# In[9]:
 
 
 player_1
@@ -161,19 +178,33 @@ player_1
 # 
 # Print (or pretty print) the pokedex dictionary with the 3 pokemon.
 
-# In[221]:
+# In[10]:
 
 
-pokedex = {
-    1: {  # key: int
-        'name': 'charmander',  # string
-        'type': 'fire',  # string
-        'hp': 239,  # int
-        'attack': 52,  # int
-        'defense': 43,  # int
-        'special_attack': 79,  # int
-        'special_defense': 72,  # int
-        'speed': 65  # int
+class Pokemon(TypedDict):
+    name: str
+    type: str
+    hp: int
+    attack: int
+    defense: int
+    special_attack: int
+    special_defense: int
+    speed: int
+
+
+# In[11]:
+
+
+pokedex: Dict[int, Pokemon] = {
+    1: {  
+        'name': 'charmander',  
+        'type': 'fire',  
+        'hp': 239,  
+        'attack': 52,  
+        'defense': 43,  
+        'special_attack': 79,  
+        'special_defense': 72,  
+        'speed': 65  
     },
     
     2: {
@@ -200,7 +231,7 @@ pokedex = {
 }
 
 
-# In[222]:
+# In[ ]:
 
 
 pprint(pokedex)
@@ -220,13 +251,13 @@ pprint(pokedex)
 # 
 # Construct the `players` dictionary and insert the player that you defined in question 1, then print `players`.
 
-# In[223]:
+# In[ ]:
 
 
 players = {}
 
 
-# In[224]:
+# In[ ]:
 
 
 def add_player_to_players(players_dict, *player):
@@ -239,13 +270,13 @@ def add_player_to_players(players_dict, *player):
     players.update({k['player_id']: {prop: k[prop] for prop in k if prop != 'player_id'} for k in list(player)})
 
 
-# In[225]:
+# In[ ]:
 
 
 add_player_to_players(players, player_1)
 
 
-# In[226]:
+# In[ ]:
 
 
 pprint(players)  # containing every player, indexed by their player_id
@@ -263,7 +294,7 @@ pprint(players)  # containing every player, indexed by their player_id
 # 
 # Print the `players` dictionary with the new player inserted.
 
-# In[227]:
+# In[ ]:
 
 
 player_2 = {
@@ -275,7 +306,7 @@ player_2 = {
 }
 
 
-# In[228]:
+# In[ ]:
 
 
 location_stackoverflow = pokemon_gyms[pokemon_gyms.index('stackoverflow.com')]  
@@ -284,19 +315,19 @@ location_github = pokemon_gyms[pokemon_gyms.index('github.com')]
 player_2['gyms_visited'].extend([location_stackoverflow, location_github])
 
 
-# In[229]:
+# In[ ]:
 
 
 player_2
 
 
-# In[230]:
+# In[ ]:
 
 
 add_player_to_players(players, player_2)
 
 
-# In[231]:
+# In[ ]:
 
 
 pprint(players)
@@ -317,7 +348,7 @@ pprint(players)
 # Print the players dictionary after adding the pokemon for each player.
 # 
 
-# In[232]:
+# In[ ]:
 
 
 def find_pokemon(pokemons_dict, pokemon_name):
@@ -338,7 +369,7 @@ def find_pokemon(pokemons_dict, pokemon_name):
             return pokemon_index, pokemons_dict[pokemon_index]
 
 
-# In[233]:
+# In[ ]:
 
 
 def get_pokemon_stats(pokemon_dict):
@@ -360,7 +391,7 @@ def get_pokemon_stats(pokemon_dict):
             or prop == 'speed']
 
 
-# In[234]:
+# In[ ]:
 
 
 def add_pokemon_to_player(player, pokemons_dict, pokemon_name):
@@ -378,14 +409,14 @@ def add_pokemon_to_player(player, pokemons_dict, pokemon_name):
     player['player_pokemon'][pokemon_tuple[0]] = get_pokemon_stats(pokemon_tuple[1])
 
 
-# In[235]:
+# In[ ]:
 
 
 add_pokemon_to_player(player_1, pokedex, 'squirtle')
 player_1
 
 
-# In[236]:
+# In[ ]:
 
 
 add_pokemon_to_player(player_2, pokedex, 'charmander')
@@ -393,7 +424,7 @@ add_pokemon_to_player(player_2, pokedex, 'bulbasaur')
 pprint(player_2)
 
 
-# In[237]:
+# In[62]:
 
 
 pprint(players)
@@ -409,7 +440,7 @@ pprint(players)
 # 2. For each gym, iterate through each player in the `players` dictionary with a second, internal for-loop.
 # 3. If the player has visited the gym, print out "[player] has visited [gym location].", filling in [player] and [gym location] with the current player's name and current gym location.
 
-# In[238]:
+# In[ ]:
 
 
 counter = 0
@@ -435,7 +466,7 @@ for gym in pokemon_gyms:
 # <br>
 # $O(N_{p}*N_{g})$
 
-# In[239]:
+# In[ ]:
 
 
 counter = 0
@@ -471,7 +502,7 @@ print(counter)
 # 
 # Print out the pokemon power for each of your players.
 
-# In[240]:
+# In[ ]:
 
 
 def get_player_power(players_dict, pokemons_dict, player_id):
@@ -495,13 +526,13 @@ def get_player_power(players_dict, pokemons_dict, player_id):
     return power
 
 
-# In[241]:
+# In[ ]:
 
 
 player_1_pokemon_power = get_player_power(players, pokedex, 1)
 
 
-# In[242]:
+# In[ ]:
 
 
 player_2_pokemon_power = get_player_power(players, pokedex, 2)
@@ -536,7 +567,7 @@ player_2_pokemon_power = get_player_power(players, pokedex, 2)
 #     [1.0, 'Bulbasaur', 'GrassPoison', 318.0, 45.0, 49.0, 49.0, 65.0, 65.0, 45.0]
 #     [2.0, 'Ivysaur', 'GrassPoison', 405.0, 60.0, 62.0, 63.0, 80.0, 80.0, 60.0]
 
-# In[247]:
+# In[ ]:
 
 
 # Code to read in pokedex info
@@ -563,7 +594,7 @@ with open(pokedex_file, newline='') as f:
         
 
 
-# In[248]:
+# In[ ]:
 
 
 pprint(pd_list)
@@ -577,7 +608,7 @@ pprint(pd_list)
 # 
 # Perform the same parsing as above, but **using only a single list comprehension** instead of for loops. You may have nested list comprehensions within the main list comprehension! The output should be exactly the same.
 
-# In[249]:
+# In[ ]:
 
 
 # Code to read in pokedex info
@@ -589,13 +620,13 @@ with open(pokedex_file, 'r') as f:
 # the pokedex string is assigned to the raw_pd variable
 
 
-# In[251]:
+# In[ ]:
 
 
 pprint(raw_pd)
 
 
-# In[252]:
+# In[ ]:
 
 
 pd_list = [[float(cell_check) if cell_check.isnumeric() 
@@ -605,7 +636,7 @@ pd_list = [[float(cell_check) if cell_check.isnumeric()
              [row for row in list_split.split(',')]]] for list_split in raw_pd.split('\n')]
 
 
-# In[253]:
+# In[ ]:
 
 
 pd_list
@@ -626,7 +657,7 @@ pd_list
 # 
 # To test the function, print out the pokemon with id = 100.
 
-# In[259]:
+# In[ ]:
 
 
 def create_pokedex_dict(pokedex_data):
@@ -647,13 +678,13 @@ def create_pokedex_dict(pokedex_data):
 pokedex = create_pokedex_dict(pd_list)
 
 
-# In[263]:
+# In[ ]:
 
 
 pprint(pokedex)
 
 
-# In[262]:
+# In[ ]:
 
 
 pprint(pokedex[100])
@@ -714,7 +745,7 @@ for k, v in pokedex.items():
 # 
 # 
 
-# In[266]:
+# In[ ]:
 
 
 def filtered_pokedex(pokedex_data, filter_pokedex_data):
@@ -750,7 +781,7 @@ def filtered_pokedex(pokedex_data, filter_pokedex_data):
     return pokemon_list 
 
 
-# In[267]:
+# In[ ]:
 
 
 # testing filtered_pokedex():
@@ -774,7 +805,7 @@ filtered_pokedex(pokedex, filter_pokedex_data={
 # 
 # 
 
-# In[268]:
+# In[ ]:
 
 
 import numpy as np
@@ -784,13 +815,13 @@ pokemon_mean = np.mean([pokedex[poke_index]['Total'] for poke_index in pokedex])
     
 
 
-# In[272]:
+# In[ ]:
 
 
 print(round(pokemon_mean, 2))
 
 
-# In[275]:
+# In[ ]:
 
 
 # for sample std: N-1
@@ -799,7 +830,7 @@ print(round(pokemon_mean, 2))
 pokemon_std = np.std([pokedex[poke_index]['Total'] for poke_index in pokedex])
 
 
-# In[276]:
+# In[ ]:
 
 
 print(round(pokemon_std, 2))
@@ -811,37 +842,37 @@ print(round(pokemon_std, 2))
 # 
 # The game is no fun if the characters are wildly unbalanced! Are any characters "overpowered", which we'll define as having a "Total" more than three standard deviations from the population mean?
 
-# In[279]:
+# In[ ]:
 
 
 overpowered_pokemons = [pokedex[poke_index] for poke_index in pokedex if pokedex[poke_index]['Total'] > (pokemon_mean + 3*pokemon_std)]
 
 
-# In[280]:
+# In[ ]:
 
 
 overpowered_pokemons
 
 
-# In[281]:
+# In[ ]:
 
 
 pokemon_total_max = max([pokedex[poke_index]['Total'] for poke_index in pokedex])
 
 
-# In[282]:
+# In[ ]:
 
 
 pokemon_total_max
 
 
-# In[283]:
+# In[ ]:
 
 
 overpowered_criteria = pokemon_mean + 3*pokemon_std
 
 
-# In[285]:
+# In[ ]:
 
 
 print(round(overpowered_criteria, 2))
@@ -857,7 +888,7 @@ print(round(overpowered_criteria, 2))
 # 
 # Hint: there are many ways you could do this. What do _you_ think makes sense? Start with simplifying assumptions: for example, you could assume that the probabilities of encountering any two Pokemon on one visit to a gym are independent of each other.
 
-# In[295]:
+# In[63]:
 
 
 import matplotlib.pyplot as plt
@@ -879,7 +910,7 @@ plt.ylabel('Pokemon total power')
 plt.show()
 
 
-# In[329]:
+# In[ ]:
 
 
 def pokemon_probability(pokemons_dict, pokemon_index):
@@ -910,7 +941,7 @@ def pokemon_probability(pokemons_dict, pokemon_index):
     return pokemon
 
 
-# In[333]:
+# In[ ]:
 
 
 # Testing probabilities of a few pokemons based on their total stat
