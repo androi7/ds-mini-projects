@@ -43,10 +43,10 @@ from pprint import pprint
 #     
 # Create the components for a player object by defining each of these variables. The dictionary and list variables should just be defined as empty; you can use any (correctly typed) values for the others.
 
-# In[2]:
+# In[147]:
 
 
-from typing import TypedDict, List, Dict, Tuple, Any, Optional
+from typing import TypedDict, List, Dict, Tuple, Any, Optional, cast
 
 
 # In[3]:
@@ -487,7 +487,7 @@ pprint(players)
 # 2. For each gym, iterate through each player in the `players` dictionary with a second, internal for-loop.
 # 3. If the player has visited the gym, print out "[player] has visited [gym location].", filling in [player] and [gym location] with the current player's name and current gym location.
 
-# In[ ]:
+# In[30]:
 
 
 counter = 0
@@ -513,7 +513,7 @@ for gym in pokemon_gyms:
 # <br>
 # $O(N_{p}*N_{g})$
 
-# In[ ]:
+# In[123]:
 
 
 counter = 0
@@ -521,7 +521,7 @@ for player in players:
     for gym in players[player]['gyms_visited']:
         counter += 1
         if gym in pokemon_gyms:
-           pass
+            pass
 print(counter)
 
 
@@ -530,6 +530,19 @@ print(counter)
 # $loops=N_{p}*N_{gp}=2*2=4$
 # <br>
 # But the in-operator is a loop function itself.
+
+# Alternative way:
+
+# In[124]:
+
+
+for v in players.values():
+    name = v['player_name']
+    gyms = v['gyms_visited']
+    print("{p} has visited {g1} and {g2}".format(p=name,
+                                                 g1=', '.join(gyms[:-1]),
+                                                 g2=gyms[-1]))
+
 
 # <img src="http://imgur.com/l5NasQj.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
 # 
@@ -549,11 +562,12 @@ print(counter)
 # 
 # Print out the pokemon power for each of your players.
 
-# In[ ]:
+# In[148]:
 
 
-def get_player_power(players_dict, pokemons_dict, player_id):
-    """Returns and prints the total power of player. 
+def get_player_power(players_dict: Dict[int, PlayerList], pokemons_dict: Dict[int, Pokemon], player_id: int) -> int:
+    """
+    Returns and prints the total power of player. 
     The player total power is defined as the sum of the base
     statistics of all their pokemon.
     
@@ -568,18 +582,24 @@ def get_player_power(players_dict, pokemons_dict, player_id):
     power = 0
     pokemons = players_dict[player_id]['player_pokemon']
     for pokemon_id in pokemons:
-        power += sum(pokemons[pokemon_id])
+        assert pokemons[pokemon_id] is not None
+        poke_power = cast(Any, pokemons[pokemon_id])
+        power += sum(poke_power)
+        # without hp and speed:
+        # (first idx: hp, last idx: speed)
+        # power += sum(pokemons[pokemon_id][1:-1])  
     print(f"{players_dict[player_id]['player_name'].title()}'s power is {power}.")
     return power
 
 
-# In[ ]:
+# In[149]:
 
 
-player_1_pokemon_power = get_player_power(players, pokedex, 1)
+player_1_id = player_1['player_id']
+player_1_pokemon_power = get_player_power(players, pokedex, player_1_id)
 
 
-# In[ ]:
+# In[150]:
 
 
 player_2_pokemon_power = get_player_power(players, pokedex, 2)
