@@ -43,10 +43,10 @@ from pprint import pprint
 #     
 # Create the components for a player object by defining each of these variables. The dictionary and list variables should just be defined as empty; you can use any (correctly typed) values for the others.
 
-# In[147]:
+# In[2]:
 
 
-from typing import TypedDict, List, Dict, Tuple, Any, Optional, cast
+from typing import TypedDict, List, Dict, Tuple, Any, Optional, cast, TypeVar
 
 
 # In[3]:
@@ -513,7 +513,7 @@ for gym in pokemon_gyms:
 # <br>
 # $O(N_{p}*N_{g})$
 
-# In[123]:
+# In[31]:
 
 
 counter = 0
@@ -533,13 +533,13 @@ print(counter)
 
 # Alternative way:
 
-# In[124]:
+# In[32]:
 
 
 for v in players.values():
     name = v['player_name']
     gyms = v['gyms_visited']
-    print("{p} has visited {g1} and {g2}".format(p=name,
+    print("{p} has visited {g1} and {g2}.".format(p=name,
                                                  g1=', '.join(gyms[:-1]),
                                                  g2=gyms[-1]))
 
@@ -562,7 +562,7 @@ for v in players.values():
 # 
 # Print out the pokemon power for each of your players.
 
-# In[148]:
+# In[33]:
 
 
 def get_player_power(players_dict: Dict[int, PlayerList], pokemons_dict: Dict[int, Pokemon], player_id: int) -> int:
@@ -592,14 +592,14 @@ def get_player_power(players_dict: Dict[int, PlayerList], pokemons_dict: Dict[in
     return power
 
 
-# In[149]:
+# In[34]:
 
 
 player_1_id = player_1['player_id']
 player_1_pokemon_power = get_player_power(players, pokedex, player_1_id)
 
 
-# In[150]:
+# In[35]:
 
 
 player_2_pokemon_power = get_player_power(players, pokedex, 2)
@@ -634,34 +634,40 @@ player_2_pokemon_power = get_player_power(players, pokedex, 2)
 #     [1.0, 'Bulbasaur', 'GrassPoison', 318.0, 45.0, 49.0, 49.0, 65.0, 65.0, 45.0]
 #     [2.0, 'Ivysaur', 'GrassPoison', 405.0, 60.0, 62.0, 63.0, 80.0, 80.0, 60.0]
 
-# In[ ]:
+# In[36]:
+
+
+from typing import Generic, Union, Sequence
+
+
+# In[38]:
 
 
 # Code to read in pokedex info
-raw_pd = ''
+raw_pd: str = ''
 pokedex_file = 'pokedex_basic.csv'
-pd_list = []
 
+#pd_list: List[List[Union[str, float, int]]] = []
+pd_list: List[List[Union[str, int, float]]] = [] # List[Union[List[str], List[Union[str, float, int]]]]
 import csv
 import string
 
 with open(pokedex_file, newline='') as f:
-    f_reader = csv.DictReader(f, delimiter=',')
+    f_reader: Any = csv.DictReader(f, delimiter=',')
     pd_list.append(f_reader.fieldnames)
     for row in f_reader:
-        inner_list = []
-        for v in row.values():
-            cell_value = -1
-            if v[0] in string.ascii_letters:
-                cell_value = str(v)
-            elif v.isnumeric():
-                cell_value = float(v)
+        inner_list: List[Union[str, float, int]] = []
+        for val in row.values():
+            cell_value: Union[str, float, int] = -1
+            if val[0] in string.ascii_letters:
+                cell_value = str(val)
+            elif val.isnumeric():
+                cell_value = float(val)
             inner_list.append(cell_value)
         pd_list.append(inner_list)
-        
 
 
-# In[ ]:
+# In[39]:
 
 
 pprint(pd_list)
@@ -675,7 +681,7 @@ pprint(pd_list)
 # 
 # Perform the same parsing as above, but **using only a single list comprehension** instead of for loops. You may have nested list comprehensions within the main list comprehension! The output should be exactly the same.
 
-# In[ ]:
+# In[40]:
 
 
 # Code to read in pokedex info
@@ -687,26 +693,22 @@ with open(pokedex_file, 'r') as f:
 # the pokedex string is assigned to the raw_pd variable
 
 
-# In[ ]:
+# In[41]:
 
 
 pprint(raw_pd)
 
 
-# In[ ]:
+# In[42]:
 
 
-pd_list = [[float(cell_check) if cell_check.isnumeric() 
-            else cell_check if len(cell_check) > 1 and cell_check[0] in string.ascii_letters 
-            else -1 for cell_check in 
-            [cell.replace("\"", "") for cell in 
-             [row for row in list_split.split(',')]]] for list_split in raw_pd.split('\n')]
+pd_list2: List[List[object]] =     [[float(cell_check) if cell_check.isnumeric() 
+      else cell_check if len(cell_check) > 1 and cell_check[0] in string.ascii_letters 
+      else -1 for cell_check in 
+      [cell.replace("\"", "") for cell in 
+       [row for row in list_split.split(',')]]] for list_split in raw_pd.split('\n')]
 
-
-# In[ ]:
-
-
-pd_list
+pd_list2
 
 
 # <img src="http://imgur.com/l5NasQj.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
@@ -724,11 +726,12 @@ pd_list
 # 
 # To test the function, print out the pokemon with id = 100.
 
-# In[ ]:
+# In[52]:
 
 
-def create_pokedex_dict(pokedex_data):
-    """Creates a pokemon index 
+def create_pokedex_dict(pokedex_data: List[List[Union[str, int, float]]]) -> Dict[int, Dict[Union[str, float], Union[str, float, int]]]:
+    """
+    Creates a pokemon index 
     
     Parameters:
     pokedex_data (list): a list of pokemons where the first row is the header 
@@ -738,28 +741,23 @@ def create_pokedex_dict(pokedex_data):
     (dict): pokemon index where the keys are the pokemon id's
     """
     return {int(inner_poke_list[0]): {pokedex_data[0][i]: inner_poke_list[i] if i != 0 else int(inner_poke_list[i])
-                               for i in range(1, len(inner_poke_list))}
-             for poke_ind, inner_poke_list in enumerate(pokedex_data) if poke_ind > 0}
+                               for i in range(1, len(inner_poke_list))}  
+             for poke_ind, inner_poke_list in enumerate(pokedex_data) if poke_ind > 0}  # if 0.0 convert to 0
 
 
-pokedex = create_pokedex_dict(pd_list)
+poke_index: Dict[int, Dict[Union[str, float], Union[str, float, int]]] = create_pokedex_dict(pd_list)
 
 
-# In[ ]:
+# In[53]:
 
 
-pprint(pokedex)
+pprint(poke_index)
 
 
 # In[ ]:
 
 
 pprint(pokedex[100])
-
-# checking if index is working correctly (if PokedexNumber is excluded):
-for k, v in pokedex.items():
-    if k == 100:
-        print(v)
 
 
 # <img src="http://i.imgur.com/GCAf1UX.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
