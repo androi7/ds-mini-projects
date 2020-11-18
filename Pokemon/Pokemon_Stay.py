@@ -640,7 +640,7 @@ player_2_pokemon_power = get_player_power(players, pokedex, 2)
 from typing import Generic, Union, Sequence
 
 
-# In[38]:
+# In[37]:
 
 
 # Code to read in pokedex info
@@ -667,7 +667,7 @@ with open(pokedex_file, newline='') as f:
         pd_list.append(inner_list)
 
 
-# In[39]:
+# In[38]:
 
 
 pprint(pd_list)
@@ -681,7 +681,7 @@ pprint(pd_list)
 # 
 # Perform the same parsing as above, but **using only a single list comprehension** instead of for loops. You may have nested list comprehensions within the main list comprehension! The output should be exactly the same.
 
-# In[40]:
+# In[39]:
 
 
 # Code to read in pokedex info
@@ -693,13 +693,13 @@ with open(pokedex_file, 'r') as f:
 # the pokedex string is assigned to the raw_pd variable
 
 
-# In[41]:
+# In[40]:
 
 
 pprint(raw_pd)
 
 
-# In[42]:
+# In[41]:
 
 
 pd_list2: List[List[object]] =     [[float(cell_check) if cell_check.isnumeric() 
@@ -726,10 +726,10 @@ pd_list2
 # 
 # To test the function, print out the pokemon with id = 100.
 
-# In[52]:
+# In[42]:
 
 
-def create_pokedex_dict(pokedex_data: List[List[Union[str, int, float]]]) -> Dict[int, Dict[Union[str, float], Union[str, float, int]]]:
+def create_pokedex_dict(pokedex_data: List[List[Union[str, int, float]]]) -> Dict[int, Dict[str, Union[str, float, int]]]:
     """
     Creates a pokemon index 
     
@@ -740,24 +740,24 @@ def create_pokedex_dict(pokedex_data: List[List[Union[str, int, float]]]) -> Dic
     Returns:
     (dict): pokemon index where the keys are the pokemon id's
     """
-    return {int(inner_poke_list[0]): {pokedex_data[0][i]: inner_poke_list[i] if i != 0 else int(inner_poke_list[i])
+    return {int(inner_poke_list[0]): {str(pokedex_data[0][i]): inner_poke_list[i] if i != 0 else int(inner_poke_list[i])
                                for i in range(1, len(inner_poke_list))}  
              for poke_ind, inner_poke_list in enumerate(pokedex_data) if poke_ind > 0}  # if 0.0 convert to 0
 
 
-poke_index: Dict[int, Dict[Union[str, float], Union[str, float, int]]] = create_pokedex_dict(pd_list)
+poke_index: Dict[int, Dict[str, Union[str, float, int]]] = create_pokedex_dict(pd_list)
 
 
-# In[53]:
+# In[43]:
 
 
 pprint(poke_index)
 
 
-# In[ ]:
+# In[44]:
 
 
-pprint(pokedex[100])
+pprint(poke_index[100])
 
 
 # <img src="http://i.imgur.com/GCAf1UX.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
@@ -810,10 +810,10 @@ pprint(pokedex[100])
 # 
 # 
 
-# In[ ]:
+# In[45]:
 
 
-def filtered_pokedex(pokedex_data, filter_pokedex_data):
+def filtered_pokedex(pokedex_data: Dict[int, Dict[str, Union[str, float, int]]], filter_pokedex_data: Dict[str, Union[str, int]]) -> List[Dict[str, Union[str, float, int]]]:
     """Returns filtered pokemons based on the filter option.
     Only pokemons are returned which have higher stats (floats) than in the filter
     dictionary and have the same values for strings.
@@ -827,16 +827,19 @@ def filtered_pokedex(pokedex_data, filter_pokedex_data):
     """
     pokemon_list = []
     for pokemon_index in pokedex_data:
-        pokemon = pokedex_data[pokemon_index]
+        pokemon: Dict[str, Union[str, float, int]] = pokedex_data[pokemon_index]
         check_stats = True
         for pokemon_filtered_stat in filter_pokedex_data:
-            if type(pokemon[pokemon_filtered_stat]) in (float, type):
-                # print(pokemon_filtered_stat, pokemon[pokemon_filtered_stat], filter_pokedex_data[pokemon_filtered_stat])
-                if pokemon[pokemon_filtered_stat] < filter_pokedex_data[pokemon_filtered_stat]:
-                    check_stats = False
-            elif type(pokemon[pokemon_filtered_stat]) == str:
-                if pokemon[pokemon_filtered_stat] != filter_pokedex_data[pokemon_filtered_stat]:
-                    # print(pokemon[pokemon_filtered_stat], filter_pokedex_data[pokemon_filtered_stat])
+            pok_stat = pokemon[pokemon_filtered_stat]
+            fil_stat = filter_pokedex_data[pokemon_filtered_stat]
+            if type(pok_stat) in (float, int):
+                # print(pokemon_filtered_stat, pok_stat, fil_stat])
+                if isinstance(pok_stat, (float, int)) and isinstance(fil_stat, (float, int)):  # used for type checking
+                    if pok_stat < fil_stat:
+                        check_stats = False
+            elif type(pok_stat) == str:
+                if pok_stat != fil_stat:
+                    # print(pok_stat, fil_stat)
                     check_stats = False
             else:
                 check_stats = False
@@ -846,12 +849,10 @@ def filtered_pokedex(pokedex_data, filter_pokedex_data):
     return pokemon_list 
 
 
-# In[ ]:
+# In[46]:
 
 
-# testing filtered_pokedex():
-
-filtered_pokedex(pokedex, filter_pokedex_data={
+filtered_pokedex(poke_index, filter_pokedex_data={
     'Attack':   85,
     'Defense':  75,
     'Type':     'Poison',
@@ -870,32 +871,30 @@ filtered_pokedex(pokedex, filter_pokedex_data={
 # 
 # 
 
-# In[ ]:
+# In[47]:
 
 
-import numpy as np
+import numpy as np  # type: ignore
 
-pokemon_mean = np.mean([pokedex[poke_index]['Total'] for poke_index in pokedex])
-
-    
+pokemon_mean = np.mean([poke_index[poke_idx]['Total'] for poke_idx in poke_index])
 
 
-# In[ ]:
+# In[48]:
 
 
 print(round(pokemon_mean, 2))
 
 
-# In[ ]:
+# In[49]:
 
 
 # for sample std: N-1
 # therefore use option: ddof=1
 
-pokemon_std = np.std([pokedex[poke_index]['Total'] for poke_index in pokedex])
+pokemon_std = np.std([poke_index[poke_idx]['Total'] for poke_idx in poke_index])
 
 
-# In[ ]:
+# In[50]:
 
 
 print(round(pokemon_std, 2))
@@ -907,37 +906,37 @@ print(round(pokemon_std, 2))
 # 
 # The game is no fun if the characters are wildly unbalanced! Are any characters "overpowered", which we'll define as having a "Total" more than three standard deviations from the population mean?
 
-# In[ ]:
+# In[51]:
 
 
-overpowered_pokemons = [pokedex[poke_index] for poke_index in pokedex if pokedex[poke_index]['Total'] > (pokemon_mean + 3*pokemon_std)]
+overpowered_pokemons = [poke_index[poke_idx] for poke_idx in poke_index if poke_index[poke_idx]['Total'] > (pokemon_mean + 3*pokemon_std)]
 
 
-# In[ ]:
+# In[52]:
 
 
 overpowered_pokemons
 
 
-# In[ ]:
+# In[53]:
 
 
-pokemon_total_max = max([pokedex[poke_index]['Total'] for poke_index in pokedex])
+pokemon_total_max = max([poke_index[poke_idx]['Total'] for poke_idx in poke_index])
 
 
-# In[ ]:
+# In[54]:
 
 
 pokemon_total_max
 
 
-# In[ ]:
+# In[55]:
 
 
 overpowered_criteria = pokemon_mean + 3*pokemon_std
 
 
-# In[ ]:
+# In[56]:
 
 
 print(round(overpowered_criteria, 2))
@@ -953,32 +952,36 @@ print(round(overpowered_criteria, 2))
 # 
 # Hint: there are many ways you could do this. What do _you_ think makes sense? Start with simplifying assumptions: for example, you could assume that the probabilities of encountering any two Pokemon on one visit to a gym are independent of each other.
 
-# In[ ]:
+# In[57]:
 
 
-import matplotlib.pyplot as plt
-get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
-get_ipython().run_line_magic('matplotlib', 'inline')
+import matplotlib.pyplot as plt  # type: ignore
+#%config InlineBackend.figure_format = 'retina'  
+#%matplotlib inline  # type: ignore
 
-population = [(poke_index, pokedex[poke_index]['Total']) for poke_index in pokedex]
+population: List[Tuple[int, Union[str, float, int]]] = [(poke_idx, poke_index[poke_idx]['Total']) for poke_idx in poke_index]
 
-def sort_func(e):
+def sort_func(e: Tuple[int, Union[str, float, int]]) -> float:
     '''Sort function to sort a tuple by second value'''
+    assert isinstance(e[1], float)
     return e[1]
     
 population.sort(key=sort_func)
 
-plt.scatter(y=[total[1] for total in population], x=[i for i in range(len(population))])
+plt.figure(figsize=(8,6))
+plt.scatter(y=[total[1] for total in population], 
+            x=[i for i in range(len(population))], 
+            lw=1)
 plt.title('Sorted pokemon total powers')
 plt.xlabel('Continuously labelled pokemons')
 plt.ylabel('Pokemon total power')
 plt.show()
 
 
-# In[ ]:
+# In[58]:
 
 
-def pokemon_probability(pokemons_dict, pokemon_index):
+def pokemon_probability(pokemons_dict: Dict[int, Dict[str, Union[str, float, int]]], pokemon_idx: int) -> Union[Tuple[()], Tuple[int, float]]:
     """Creating a probability of finding a pokemon based on its total stat.
     The higher the total stat the lower is its probility to find it and
     vice versa.
@@ -990,42 +993,52 @@ def pokemon_probability(pokemons_dict, pokemon_index):
     Returns:
     pokemon (tuple): a tuple with the pokemon index value and the probability to find it
     """
-    population = [(poke_index, pokedex[poke_index]['Total']) for poke_index in pokemons_dict]
+    population = [(poke_idx, poke_index[poke_idx]['Total']) for poke_idx in pokemons_dict]
     
-    new_pokemon_index = [(total[0], 1/total[1]) for total in population]
+    assert all(isinstance(pok_tot, float) for pok_tot in dict(population).values())
+    casted_population = cast(List[Tuple[int, float]], population)
+    new_pokemon_index = [(total[0], 1/total[1]) for total in casted_population]
     new_pokemon_index_sum = sum([total[1] for total in new_pokemon_index])
 
     pokemon_probs = [(total[0], total[1]/new_pokemon_index_sum) for total in new_pokemon_index]
     # for testing: sum has to be closely to 1 (floating point calculation deviations)
     # print(sum([i[1] for i in pokemon_probs]))
     
-    pokemon = ()
+    pokemon: Union[Tuple[()], Tuple[int, float]] = ()
     for i in pokemon_probs:
-        if i[0] == pokemon_index:
+        if i[0] == pokemon_idx:
             pokemon = i
     return pokemon
 
 
-# In[ ]:
+# In[59]:
 
 
 # Testing probabilities of a few pokemons based on their total stat
 
-pokemon382 = pokemon_probability(pokedex, 382)
+pokemon382 = pokemon_probability(poke_index, 382)
 print(pokemon382)
-print(pokedex[382]['Total'])
+print(poke_index[382]['Total'])
 print('----------')
-pokemon91 = pokemon_probability(pokedex, 91)
+pokemon91 = pokemon_probability(poke_index, 91)
 print(pokemon91)
-print(pokedex[91]['Total'])
+print(poke_index[91]['Total'])
 print('----------')
-pokemon75 = pokemon_probability(pokedex, 75)
+pokemon75 = pokemon_probability(poke_index, 75)
 print(pokemon75)
-print(pokedex[75]['Total'])
+print(poke_index[75]['Total'])
 print('----------')
-pokemon1 = pokemon_probability(pokedex, 1)
+pokemon1 = pokemon_probability(poke_index, 1)
 print(pokemon1)
-print(pokedex[1]['Total'])
+print(poke_index[1]['Total'])
+
+
+# In[60]:
+
+
+# Check if the sum of the probabilites of each pokemon is 1
+
+np.isclose(1, sum([prob[1] for prob in [pokemon_probability(poke_index, idx) for idx in poke_index.keys()]]))  # type: ignore
 
 
 # In[ ]:
