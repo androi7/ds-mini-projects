@@ -72,15 +72,17 @@ class Pokemon:
         Name:            {name}
         Name of type:    {type_name}
         Hp:              {hp}
+        Attack:          {attack}
         Defense:         {defense}
-        Special attack:  {attack}
+        Special attack:  {special_attack}
         Special defense: {special_defense}
         Speed:           {speed}\n""".format(pokemon_id=self.pokemon_id, 
                                              name=self.name, 
                                              type_name=self.pokemon_type, 
                                              hp=self.hp, 
+                                             attack=self.attack,
                                              defense=self.defense, 
-                                             attack=self.special_attack, 
+                                             special_attack=self.special_attack, 
                                              special_defense=self.special_defense, 
                                              speed=self.speed)
         
@@ -307,17 +309,46 @@ class PlayerList:
         self.players = players
         self._player_dict: Dict[int, Any] = {} #PlayerDescription] = {}
         
+        
     def get_players(self) -> Dict[int, Any]: #PlayerDescription]:
         self._player_dict =  {k.player_id: {attrs: value for attrs, value in k.__dict__.items() 
                                             if attrs != 'player_id'} 
                              for k in self.players}
         return self._player_dict
     
+    
+    def _get_player_names(self) -> List[str]:
+        names: List[str] = []
+        for player in self.players:
+            names.append(player.player_name)
+        return names
+    
+    
     def add_player(self, *player: Player) -> Dict[int, Any]: #PlayerDescription]:
         for p in player:
-            if p not in self.players:
+            if p.player_name not in self._get_player_names():
                 self.players.append(p)
         return self.get_players()
+    
+    
+    def find_player(self, player_id: int) -> Optional[Player]:
+        for player in self.players:
+            if player.player_id == player_id:
+                return player
+        else:
+            print('Player not found!')
+            return None
+    
+    
+    def calculate_power(self, player_id: int) -> int:
+        player = self.find_player(player_id)
+        power = 0
+        if player:
+            for pokemon in player.player_pokemon:
+                power += sum([value for attrs, value in pokemon.__dict__.items() 
+                              if attrs in ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed']])
+        return power
+    
         
     def __repr__(self):
         return ", ".join([player.player_name for player in self.players])
@@ -470,10 +501,17 @@ for player in players.players:
 # 
 # Print out the pokemon power for each of your players.
 
-# In[ ]:
+# In[27]:
 
 
+# see PlayerList -> calculate_power()
+players.calculate_power(1)
 
+
+# In[28]:
+
+
+players.calculate_power(2)
 
 
 # <img src="http://imgur.com/l5NasQj.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
