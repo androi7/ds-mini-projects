@@ -543,24 +543,6 @@ players.calculate_power(2)
 #     [1.0, 'Bulbasaur', 'GrassPoison', 318.0, 45.0, 49.0, 49.0, 65.0, 65.0, 45.0]
 #     [2.0, 'Ivysaur', 'GrassPoison', 405.0, 60.0, 62.0, 63.0, 80.0, 80.0, 60.0]
 
-# In[ ]:
-
-
-# Code to read in pokedex info
-raw_pd = ''
-pokedex_file = 'pokedex_basic.csv'
-with open(pokedex_file, 'r') as f:
-    raw_pd = f.read()
-    
-# the pokedex string is assigned to the raw_pd variable
-
-
-# In[ ]:
-
-
-
-
-
 # <img src="http://imgur.com/xDpSobf.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
 # 
 # ### 8.2 Parse the raw pokedex with list comprehensions
@@ -569,10 +551,26 @@ with open(pokedex_file, 'r') as f:
 # 
 # Perform the same parsing as above, but **using only a single list comprehension** instead of for loops. You may have nested list comprehensions within the main list comprehension! The output should be exactly the same.
 
-# In[ ]:
+# In[29]:
 
 
+import csv
 
+# Code to read in pokedex info
+raw_pd: Optional[List[List[object]]]  = None
+pokedex_file = 'pokedex_basic.csv'
+with open(pokedex_file, 'r') as f:
+    reader = csv.reader(f)
+    rows = list(reader)
+    raw_pd = [[int(i) if i.isnumeric() 
+               else -1 if i == '' 
+               else i for i in row] 
+              for row in rows]
+
+raw_pd
+
+    
+# the pokedex string is assigned to the raw_pd variable
 
 
 # <img src="http://imgur.com/l5NasQj.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
@@ -590,10 +588,84 @@ with open(pokedex_file, 'r') as f:
 # 
 # To test the function, print out the pokemon with id = 100.
 
-# In[ ]:
+# In[30]:
 
 
+class PokemonExtended(Pokemon):
+    def __init__(self, pokemon_id: int, name: str, pokemon_type: str, total: int,
+                 hp: int, attack: int, defense: int, special_attack: int, 
+                 special_defense: int, speed: int) -> None:
+        super().__init__(pokemon_id, name, pokemon_type, hp, attack, defense, 
+                         special_attack, special_defense, speed)
+        self.total = total
 
+
+# In[31]:
+
+
+class PokemonList:
+    
+    pokedex: List[PokemonExtended] = []
+    
+    def __init__(self, pokemon_file: List[List[object]] = None) -> None:
+        self.pokemon_file = pokemon_file or []
+        if self.pokemon_file:
+            self._create_pokedex()
+        
+    def _create_pokedex(self) -> None:
+        if self.pokemon_file:
+            try: 
+                for row in self.pokemon_file:
+                    self.pokedex.append(PokemonExtended(*row))  # type: ignore
+            except:
+                raise ValueError("Pokemon couldn't be add to the pokedex.")
+    
+    def add_to_pokedex(self, *pokemon: PokemonExtended) -> None:
+        for pok in pokemon:
+            assert isinstance(pok, PokemonExtended), f"{pok} is not a pokemon!"
+            if id(pok) not in [id(pok_in_index) for pok_in_index in self.pokedex]: 
+                self.pokedex.append(pok)
+            
+    def get_pokedex(self) -> Optional[Dict[int, Any]]:
+        if self.pokedex:
+            return {pok.pokemon_id: {attrs: value for attrs, value in pok.__dict__.items()}
+                    for pok in self.pokedex}
+        else:
+            return None
+        
+    def search_pokemon(self, pokemon_id: int) -> Optional[PokemonExtended]:
+        for pokemon in self.pokedex:
+            if pokemon.pokemon_id == pokemon_id:
+                return pokemon
+        else:
+            return None
+
+
+# In[32]:
+
+
+tuple([1, 2])
+
+
+# In[33]:
+
+
+new_pokedex = PokemonList(raw_pd[1:])
+new_pokedex.pokedex[2]
+
+
+# In[34]:
+
+
+# for testing purposes
+new_pokedex.get_pokedex()[100]  # type: ignore
+
+
+# In[35]:
+
+
+pokemon_id_100 = new_pokedex.search_pokemon(100)
+pokemon_id_100
 
 
 # <img src="http://i.imgur.com/GCAf1UX.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
