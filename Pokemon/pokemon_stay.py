@@ -670,7 +670,7 @@ with open(pokedex_file, newline='') as f:
 # In[38]:
 
 
-pprint(pd_list)
+pprint(pd_list[:5])
 
 
 # <img src="http://imgur.com/xDpSobf.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
@@ -696,7 +696,7 @@ with open(pokedex_file, 'r') as f:
 # In[40]:
 
 
-pprint(raw_pd)
+pprint(raw_pd[:306])
 
 
 # In[41]:
@@ -708,7 +708,7 @@ pd_list2: List[List[object]] =     [[float(cell_check) if cell_check.isnumeric()
       [cell.replace("\"", "") for cell in 
        [row for row in list_split.split(',')]]] for list_split in raw_pd.split('\n')]
 
-pd_list2
+pd_list2[:5]
 
 
 # <img src="http://imgur.com/l5NasQj.png" style="float: left; margin: 25px 15px 0px 0px; height: 25px">
@@ -751,7 +751,9 @@ poke_index: Dict[int, Dict[str, Union[str, float, int]]] = create_pokedex_dict(p
 # In[43]:
 
 
-pprint(poke_index)
+from itertools import islice
+
+pprint(dict(islice(poke_index.items(), 3)))
 
 
 # In[44]:
@@ -956,8 +958,9 @@ print(round(overpowered_criteria, 2))
 
 
 import matplotlib.pyplot as plt  # type: ignore
-#%config InlineBackend.figure_format = 'retina'  
-#%matplotlib inline  # type: ignore
+from IPython import get_ipython  # type: ignore
+get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina' # type: ignore")
+get_ipython().run_line_magic('matplotlib', 'inline')
 
 population: List[Tuple[int, Union[str, float, int]]] = [(poke_idx, poke_index[poke_idx]['Total']) for poke_idx in poke_index]
 
