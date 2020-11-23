@@ -603,6 +603,15 @@ class PokemonExtended(Pokemon):
 # In[31]:
 
 
+for i in range(5):
+    for j in range(5, 8):
+        if j == 7: pass
+        print(i, j)
+
+
+# In[32]:
+
+
 class PokemonList:
     
     pokedex: List[PokemonExtended] = []
@@ -639,12 +648,18 @@ class PokemonList:
                 return pokemon
         else:
             return None
-
-
-# In[32]:
-
-
-tuple([1, 2])
+        
+    def filter_pokemons(self, options: Dict[str, Union[int, str]] = None) -> List[PokemonExtended]:
+        self.options = options or {}
+        self.filtered_pokemons: List[PokemonExtended] = []
+        
+        for pokemon in self.pokedex:
+            for key, val in self.options.items():
+                if key == 'Name' and val != getattr(pokemon, key.lower())                 or key == 'Type' and val != pokemon.pokemon_type                 or key in ['Defense', 'HP', 'Attack', 'Speed', 'Total'] and val > getattr(pokemon, key.lower())                 or key in ['SpecialAttack', 'SpecialDefense'] and val > getattr(pokemon, 'special_' + key[7:].lower()):
+                    break
+            else:
+                self.filtered_pokemons.append(pokemon)
+        return self.filtered_pokemons
 
 
 # In[33]:
@@ -718,10 +733,24 @@ pokemon_id_100
 # 
 # 
 
-# In[ ]:
+# In[36]:
 
 
+new_pokedex.filter_pokemons({
+    'Attack':   95,
+    'Defense':  85,
+    'Type':     'Electric'
+})
 
+
+# In[37]:
+
+
+new_pokedex.filter_pokemons({
+    'Attack':   85,
+    'Defense':  79,
+    'Type':     'Electric'
+})
 
 
 # 
